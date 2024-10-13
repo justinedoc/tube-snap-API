@@ -6,11 +6,13 @@ import rateLimit from "express-rate-limit";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
 const limiter = rateLimit({
-  windowMs: 20 * 60 * 1000,
-  limit: 10,
-  message: "Too many requests from this IP, please try again after 15mins",
+  windowMs: 20 * 60 * 1000, // 20 minutes
+  max: 10, // limit each IP to 10 requests per windowMs
+  message: "Too many requests from this IP, please try again after 15 minutes",
 });
+
 const allowedOrigins = [
   "https://tube-snap.vercel.app",
   "http://localhost:3000",
@@ -18,6 +20,7 @@ const allowedOrigins = [
 
 app.use(limiter);
 app.use(bodyparser.json());
+
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -27,9 +30,26 @@ app.use(
         callback(new Error("Not allowed by CORS"));
       }
     },
+    methods: ["GET", "POST"],
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Access-Control-Allow-Private-Network",
+    ],
+    exposedHeaders: ["Content-Length"],
   })
 );
+
+// Handle preflight requests
+app.options("*", (req, res) => {
+  res.setHeader("Access-Control-Allow-Private-Network", "true");
+  res.sendStatus(204);
+});
+
 app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Private-Network", "true");
   console.log("Path: ", req.path);
   console.log("host: ", req.hostname);
   next();
