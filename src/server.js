@@ -8,13 +8,12 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const limiter = rateLimit({
   windowMs: 20 * 60 * 1000,
-  limit: 100,
+  limit: 10,
   message: "Too many requests from this IP, please try again after 15mins",
 });
 const allowedOrigins = [
   "https://tube-snap.vercel.app",
   "http://localhost:3000",
-  "http://localhost:3001",
 ];
 
 app.use(limiter);
