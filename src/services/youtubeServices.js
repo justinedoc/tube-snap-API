@@ -1,51 +1,33 @@
-import ytdl from "@distube/ytdl-core";
-import { errorResponse } from "../utils/responseHandlers.js";
-import fs from "fs";
+import fetchProgress from "./vidDlAPI.js";
+import * as dotenv from "dotenv";
 
-export default async function getVideo(videoURL, format, resolution, res) {
-  console.log(`URL: ${videoURL}, Format: ${format}, Resolution: ${resolution}`);
+dotenv.config();
+
+const apiKey = process.env.API_KEY;
+
+export default async function getVideo(videoURL, resolution, res) {
   try {
-    const agent = ytdl.createAgent(
-      JSON.parse(fs.readFileSync("cooks.json"))
+    const response = await fetch(
+      `https://loader.to/ajax/download.php?format=${resolution}&url=${videoURL}`,
+      {
+        headers: new Headers({
+          Authorization: `Bearer ${apiKey}`,
+        }),
+      }
     );
+    console.log("Finished with fetching...");
 
-    const info = await ytdl.getInfo(videoURL, { agent });
-    console.log("Got video info:", info);
+    const data = await response.json();
+    const progress = await fetchProgress(data?.id);
 
-    const selectedFormat = ytdl.chooseFormat(info.formats, {
-      filter: (f) => {
-        return f.container === format && f.qualityLabel === resolution;
-      },
-    });
-
-    if (!selectedFormat) {
-      console.log("Format not found");
-      return errorResponse(
-        res,
-        `No format found for ${format} at ${resolution}`
-      );
+    if (!progress) {
+      res.json({ message: "could not fetch requested video" }).status(500);
     }
 
-    res.setHeader("Content-Type", `video/${format}`);
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="video.${format}"`
-    );
-    res.setHeader("Transfer-Encoding", "chunked");
-
-    console.log("Starting to stream video...");
-
-    ytdl(videoURL, { format: selectedFormat, agent })
-      .pipe(res)
-      .on("error", (err) => {
-        console.log("Error streaming video:", err);
-        res.status(500).json({ error: "Error streaming video" });
-      })
-      .on("finish", () => {
-        console.log("Streaming finished successfully.");
-      });
+    console.log("Starting to send...")
+    res.send({ data, progress }).status(200);
   } catch (err) {
-    console.error("Error in getVideo function:", err);
-    errorResponse(res, err);
+    console.error("AN error occured, Video could not be fetched: ", err);
+    res.send({ message: "Video could not be fetched" }).status(500);
   }
 }
