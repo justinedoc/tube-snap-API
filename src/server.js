@@ -8,8 +8,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const limiter = rateLimit({
-  windowMs: 20 * 60 * 1000, // 20 minutes
-  max: 100, // limit each IP to 10 requests per windowMs
+  windowMs: 20 * 60 * 1000,
+  max: 100,
   message: "Too many requests from this IP, please try again after 15 minutes",
 });
 
@@ -42,7 +42,6 @@ app.use(
   })
 );
 
-// Handle preflight requests
 app.options("*", (req, res) => {
   res.setHeader("Access-Control-Allow-Private-Network", "true");
   res.sendStatus(204);
