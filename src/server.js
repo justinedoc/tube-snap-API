@@ -47,6 +47,8 @@ app.options("*", (req, res) => {
   res.sendStatus(204);
 });
 
+app.set("trust proxy", 1);
+
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Private-Network", "true");
   console.log("Path: ", req.path);
