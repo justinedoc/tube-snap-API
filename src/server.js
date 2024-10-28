@@ -9,14 +9,11 @@ const PORT = process.env.PORT || 5000;
 
 const limiter = rateLimit({
   windowMs: 20 * 60 * 1000,
-  max: 110,
+  max: 1100,
   message: "Too many requests from this IP, please try again after 15 minutes",
 });
 
-const allowedOrigins = [
-  "https://tube-snap.vercel.app",
-  "http://localhost:3000",
-];
+const allowedOrigins = ["https://tube-snap.vercel.app"];
 
 app.use(limiter);
 app.use(bodyparser.json());

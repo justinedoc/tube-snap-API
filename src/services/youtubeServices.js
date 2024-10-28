@@ -27,7 +27,7 @@ export default async function getVideo(videoURL, resolution, res) {
     console.log("Starting to send...");
     res.send({ data, progress }).status(200);
   } catch (err) {
-    console.error("AN error occured, Video could not be fetched: ", err);
+    console.error("An error occured, Video could not be fetched: ", err);
     res.send({ message: "Video could not be fetched" }).status(500);
   }
 }
