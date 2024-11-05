@@ -1,4 +1,4 @@
-import fetchProgress from "./vidDlAPI.js";
+import fetchProgress from "./vidApi.js";
 import * as dotenv from "dotenv";
 
 dotenv.config();
